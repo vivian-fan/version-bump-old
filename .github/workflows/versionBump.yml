@@ -17,13 +17,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set Git config
-        if: github.ref == 'refs/heads/master'
+        if: github.event.pull_request.base.ref == 'master'
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "Github Actions"
 
       - name: Merge master back to dev
-        if: github.ref == 'refs/heads/master'
+        if: github.event.pull_request.base.ref == 'master'
         run: |
           git fetch --unshallow
           git checkout develop
