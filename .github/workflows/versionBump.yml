@@ -52,6 +52,7 @@ jobs:
           git pull
           fileName=$(ls *intent.yml)
           fileContent=$(cat $fileName)
+          echo $fileContent
           echo "::set-output name=intent_file::$fileName"
           echo "::set-output name=intent_content::$fileContent"
           rm $fileName
