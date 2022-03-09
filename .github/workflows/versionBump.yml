@@ -80,5 +80,5 @@ jobs:
           git fetch --unshallow
           git checkout develop
           git pull
-          git merge --no-ff master --strategy-option theirs -m "Auto-merge master back to dev"
+          git merge --no-ff master --strategy-option ours -m "Auto-merge master back to dev"
           git push
