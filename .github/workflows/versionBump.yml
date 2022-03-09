@@ -14,6 +14,8 @@ jobs:
     outputs:
       matrix: ${{ steps.semver.outputs.matrix }}
       branch_name: ${{ steps.branch_name.outputs.branch_name }}
+      intent_file: ${{ steps.intent.outputs.intent_file }}
+      intent_content: ${{ steps.intent.outputs.intent_content }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -39,6 +41,21 @@ jobs:
       - name: Get Branch Reference
         id: branch_name
         run: echo "::set-output name=branch_name::$GITHUB_BASE_REF"
+        
+      - name: Get Intent File Name And Content And Delete Intent File
+        id: intent
+        run: |
+          git fetch --unshallow
+          git checkout $GITHUB_BASE_REF
+          git pull
+          fileName=$(ls *intent.yml)
+          fileContent=$(cat $fileName)
+          echo "::set-output name=intent_file::$fileName"
+          echo "::set-output name=intent_content::$fileContent"
+          rm $fileName
+          git add -A
+          git commit -m "delete $fileName"
+          git push
 
   update-yaml:
     needs: compute-version
@@ -63,7 +80,7 @@ jobs:
           masterBranchName: master
           createPR: false
           branch: ${{ needs.compute-version.outputs.branch_name }}
-          message: Bump version to ${{ matrix.version }} in ${{ matrix.file }}
+          message: Bump version to ${{ matrix.version }} in ${{ matrix.file }} \n\n Version updated by ${{ needs.compute-version.outputs.intent_file }} \n\n ${{ needs.compute-version.outputs.intent_content }}
 
   merge-back:
     if: github.event.pull_request.base.ref == 'master'
