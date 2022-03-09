@@ -81,5 +81,5 @@ jobs:
           git pull
           git checkout develop
           git pull
-          git merge -Xtheirs master -m "Auto-merge master back to dev"
+          git merge -Xours master -m "Auto-merge master back to dev"
           git push
