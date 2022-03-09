@@ -5,6 +5,8 @@ on:
     branches: [master, develop]
     types: [closed]
 
+concurrency: ${{ github.base_ref }}-${{ github.workflow }}
+
 jobs:
   compute-version:
     if: ${{ github.event.pull_request.merged }}
@@ -13,11 +15,6 @@ jobs:
       matrix: ${{ steps.semver.outputs.matrix }}
       branch_name: ${{ steps.branch_name.outputs.branch_name }}
     steps:
-      - name: Disallow Concurrent Runs
-        uses: byu-oit/github-action-disallow-concurrent-runs@v2
-        with:
-          token: ${{ secrets.TOKEN }}
-
       - name: Checkout
         uses: actions/checkout@v2
 
