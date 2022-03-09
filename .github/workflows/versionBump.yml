@@ -51,10 +51,10 @@ jobs:
           git checkout $GITHUB_BASE_REF
           git pull
           fileName=$(ls *intent.yml)
-          fileContent=$(cat $fileName)
-          echo $fileContent
+          fileContent=$(cat $fileName | tr -d '\r\n')
           echo "::set-output name=intent_file::$fileName"
           echo "::set-output name=intent_content::$fileContent"
+          echo file name is $fileContent
           rm $fileName
           git add -A
           git commit -m "delete $fileName"
