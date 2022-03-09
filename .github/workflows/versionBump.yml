@@ -45,6 +45,8 @@ jobs:
       - name: Get Intent File Name And Content And Delete Intent File
         id: intent
         run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
           git fetch --unshallow
           git checkout $GITHUB_BASE_REF
           git pull
@@ -89,6 +91,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        
       - name: Set Git config
         run: |
           git config --local user.email "actions@github.com"
