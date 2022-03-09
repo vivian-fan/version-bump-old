@@ -78,7 +78,8 @@ jobs:
       - name: Merge master back to dev
         run: |
           git fetch --unshallow
+          git pull
           git checkout develop
           git pull
-          git merge --no-ff master --strategy-option ours -m "Auto-merge master back to dev"
+          git merge -Xtheirs master -m "Auto-merge master back to dev"
           git push
