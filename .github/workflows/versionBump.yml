@@ -16,21 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set Git config
-        if: github.event.pull_request.base.ref == 'master'
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "Github Actions"
-
-      - name: Merge master back to dev
-        if: github.event.pull_request.base.ref == 'master'
-        run: |
-          git fetch --unshallow
-          git checkout develop
-          git pull
-          git merge --no-ff master -m "Auto-merge master back to dev"
-          git push
-
       - name: Install Python3
         uses: actions/setup-python@v2
         with:
@@ -77,3 +62,23 @@ jobs:
           createPR: false
           branch: ${{ needs.compute-version.outputs.branch_name }}
           message: Bump version to ${{ matrix.version }} in ${{ matrix.file }}
+          
+  merge-back:
+    if: github.event.pull_request.base.ref == 'master'
+    needs: update-yaml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set Git config
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
+
+      - name: Merge master back to dev
+        run: |
+          git fetch --unshallow
+          git checkout develop
+          git pull
+          git merge --no-ff master --strategy-option theirs -m "Auto-merge master back to dev"
+          git push
