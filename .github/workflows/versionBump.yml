@@ -51,7 +51,7 @@ jobs:
           git checkout $GITHUB_BASE_REF
           git pull
           fileName=$(ls *intent.yml)
-          fileContent=$(cat $fileName | tr -d '\r\n')
+          fileContent=$(cat $fileName)
           echo "::set-output name=intent_file::$fileName"
           echo "::set-output name=intent_content::$fileContent"
           echo file name is $fileContent
@@ -83,7 +83,7 @@ jobs:
           masterBranchName: master
           createPR: false
           branch: ${{ needs.compute-version.outputs.branch_name }}
-          message: "Bump version to ${{ matrix.version }} \n Updated by ${{ needs.compute-version.outputs.intent_file }} \n ${{ needs.compute-version.outputs.intent_content }}"
+          message: "Bump version to ${{ matrix.version }}\nUpdated by ${{ needs.compute-version.outputs.intent_file }}\n${{ needs.compute-version.outputs.intent_content }}"
 
   merge-back:
     if: github.event.pull_request.base.ref == 'master'
