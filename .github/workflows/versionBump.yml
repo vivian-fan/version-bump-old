@@ -83,7 +83,7 @@ jobs:
           masterBranchName: master
           createPR: false
           branch: ${{ needs.compute-version.outputs.branch_name }}
-          message: Bump version to ${{ matrix.version }} \n Updated by ${{ needs.compute-version.outputs.intent_file }} \n ${{ needs.compute-version.outputs.intent_content }}
+          message: "Bump version to ${{ matrix.version }} \n Updated by ${{ needs.compute-version.outputs.intent_file }} \n ${{ needs.compute-version.outputs.intent_content }}"
 
   merge-back:
     if: github.event.pull_request.base.ref == 'master'
