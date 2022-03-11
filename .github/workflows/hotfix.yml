@@ -1,0 +1,80 @@
+name: HOTFIX REBUMP VERSION ON MASTER
+
+on:
+  pull_request:
+    branches:
+      - "production_release_**"
+    types: [closed]
+    
+jobs:
+  calculate-version:
+    if: ${{ github.event.pull_request.merged }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.semver.outputs.matrix }}
+      intent_file: ${{ steps.intent.outputs.intent_file }}
+      intent_content: ${{ steps.intent.outputs.intent_content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Python3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install Dependencies
+        run: |
+          chmod +x ./.github/intall-py-dependecies.sh
+          ./.github/intall-py-dependecies.sh
+      
+      - name: Recompute Version on Develop and Master
+        id: semver
+        env:
+              USER_PASSWORD: ${{ secrets.TOKEN }}
+        run: |
+          python ./.github/hotfix.py $USER_PASSWORD
+          echo "::set-output name=matrix::$(python ./.github/hotfix.py $USER_PASSWORD)"
+          
+      - name: Get Intent File Name And Content And Delete Intent File
+      id: intent
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "Github Actions"
+        git fetch --unshallow
+        git checkout $GITHUB_BASE_REF
+        git pull
+        fileName=$(ls *intent.yml)
+        fileContent=$(cat $fileName | tr -d '\r\n')
+        echo "::set-output name=intent_file::$fileName"
+        echo "::set-output name=intent_content::$fileContent"
+        echo file name is $fileContent
+        rm $fileName
+        git add -A
+        git commit -m "delete $fileName"
+        git push
+          
+  update-yaml:
+    needs: calculate-version
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJSON(needs.calculate-version.outputs.matrix)}}
+      fail-fast: true
+      max-parallel: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update Version on Yaml File
+        uses: fjogeleit/yaml-update-action@master
+        with:
+          valueFile: ${{ matrix.file }}
+          propertyPath: info.version
+          value: ${{ matrix.version }}
+          commitChange: true
+          updateFile: true
+          targetBranch: ${{ matrix.branch }}
+          masterBranchName: master
+          createPR: false
+          branch: ${{ matrix.branch }}
+          message: "Bump version to ${{ matrix.version }}\nUpdated by ${{ needs.compute-version.outputs.intent_file }}\n${{ needs.compute-version.outputs.intent_content }}"
