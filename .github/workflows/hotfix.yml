@@ -33,8 +33,8 @@ jobs:
         env:
               USER_PASSWORD: ${{ secrets.TOKEN }}
         run: |
-          python ./.github/hotfix.py $USER_PASSWORD
-          echo "::set-output name=matrix::$(python ./.github/hotfix.py $USER_PASSWORD)"
+          python ./.github/hotfix.py $USER_PASSWORD $GITHUB_BASE_REF
+          echo "::set-output name=matrix::$(python ./.github/hotfix.py $USER_PASSWORD $GITHUB_BASE_REF)"
           
       - name: Get Intent File Name And Content And Delete Intent File
       id: intent
